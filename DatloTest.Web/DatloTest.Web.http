@@ -1,0 +1,6 @@
+@DatloTest.Web_HostAddress = http://localhost:5014
+
+GET {{DatloTest.Web_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

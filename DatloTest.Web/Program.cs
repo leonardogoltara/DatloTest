@@ -1,10 +1,7 @@
 using DatloTest.Infrastructure.Excel;
 using DatloTest.Infrastructure.Services;
-using ExcelDataReader;
 using Microsoft.AspNetCore.Mvc;
-using OfficeOpenXml;
 using System.Data;
-using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 

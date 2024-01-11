@@ -2,7 +2,6 @@
 using System.Data;
 using OfficeOpenXml;
 using ExcelDataReader;
-using System.IO;
 
 namespace DatloTest.Infrastructure.Excel
 {

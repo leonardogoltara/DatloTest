@@ -1,5 +1,5 @@
 # DatloTest
-## Teste vaga de Desenvolvedor(a) Back-end
+Teste vaga de Desenvolvedor(a) Back-end
 
 ## Contexto:
 Imagine uma plataforma intuitiva e flexível que permite aos usuários importar um conjunto
@@ -36,7 +36,7 @@ modelou na Parte 1, onde deve ser possível :
 - Consultar e filtrar dados de qualquer conjunto de dados por meio de textos simples
 ou números, dependendo do tipo de cada coluna.
 
-### Observações:
+## Observações:
 - Compartilhe o código-fonte através de um repositório do Github.
 - Priorize a qualidade do código, a modularidade e a legibilidade.
 - Não hesite em fornecer explicações e justificativas para suas decisões de design e

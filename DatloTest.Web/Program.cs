@@ -32,36 +32,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+#region "Entrada de Dados"
+
 app.MapGet("ListaConjuntos", ([FromServices] IConjuntoService conjuntoService,
     string? nomeConjunto) =>
 {
     return conjuntoService.ListaConjuntos(nomeConjunto);
 })
     .WithName("ListaConjuntos")
-    .WithOpenApi();
-
-app.MapGet("ConsultarConjunto", ([FromServices] IConjuntoService conjuntoService,
-    [FromServices] IExcelReaderService excelReaderService,
-    Guid idConjunto,
-    IFormFile arquivoFilter) =>
-{
-    DataTable dataTable;
-    if (!string.IsNullOrEmpty(arquivoFilter?.Name))
-    {
-        string tempfile = excelReaderService.CreateTempFilePath(arquivoFilter.FileName);
-        using (var stream = File.OpenWrite(tempfile))
-        {
-            arquivoFilter.CopyToAsync(stream).Wait();
-        }
-
-        // Format CSV or XLSX to DataTable
-        dataTable = excelReaderService.ReadExcelFile(tempfile);
-    }
-
-    return conjuntoService.ConsultarConjunto(idConjunto);
-})
-    .WithName("ConsultarConjunto")
-    .WithOpenApi();
+    .WithTags("Entrada de Dados");
 
 app.MapPost("/CarregarConjunto", ([FromServices] IConjuntoService conjuntoService,
     [FromServices] IExcelReaderService excelReaderService,
@@ -87,6 +66,7 @@ app.MapPost("/CarregarConjunto", ([FromServices] IConjuntoService conjuntoServic
     return null;
 })
     .WithName("CarregarConjunto")
+    .WithTags("Entrada de Dados")
     .DisableAntiforgery();
 
 app.MapPost("/AtualizarConjunto", ([FromServices] IConjuntoService conjuntoService,
@@ -114,6 +94,38 @@ app.MapPost("/AtualizarConjunto", ([FromServices] IConjuntoService conjuntoServi
     return null;
 })
     .WithName("AtualizarConjunto")
+    .WithTags("Entrada de Dados")
     .DisableAntiforgery();
+
+#endregion
+
+#region "Relatórios"
+
+app.MapPost("ConsultarConjunto", ([FromServices] IConjuntoService conjuntoService,
+    [FromServices] IExcelReaderService excelReaderService,
+    Guid idConjunto,
+    IFormFile arquivoFilter) =>
+{
+    DataTable dataTable = null;
+    if (!string.IsNullOrEmpty(arquivoFilter?.Name))
+    {
+        string tempfile = excelReaderService.CreateTempFilePath(arquivoFilter.FileName);
+        using (var stream = File.OpenWrite(tempfile))
+        {
+            arquivoFilter.CopyToAsync(stream).Wait();
+        }
+
+        // Format CSV or XLSX to DataTable
+        dataTable = excelReaderService.ReadExcelFile(tempfile);
+    }
+
+    return conjuntoService.ConsultarConjunto(idConjunto, dataTable);
+})
+    .WithName("ConsultarConjunto")
+    .WithTags("Relatórios")
+    .DisableAntiforgery();
+
+#endregion
+
 
 app.Run();

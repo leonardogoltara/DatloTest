@@ -1,6 +1,7 @@
 ﻿using DatloTest.Domain.Models;
 using DatloTest.Infrastructure.Repository;
 using DatloTest.Infrastructure.Services;
+using MongoDB.Bson;
 using System.Data;
 
 namespace DatloTest.Infrastructure.MongoDBService.Repositories
@@ -30,7 +31,7 @@ namespace DatloTest.Infrastructure.MongoDBService.Repositories
             _service.SaveDataTableToCollection(dataTable, collectionName);
         }
 
-        public void DeletarDados(string? collectionName)
+        public void DeleteDados(string? collectionName)
         {
             _service.DeleteCollection(collectionName);
         }
@@ -39,6 +40,11 @@ namespace DatloTest.Infrastructure.MongoDBService.Repositories
         {
             return _service?.GetAll<ConjuntoModel>(_collectionName)?
                 .FirstOrDefault(o => o.Id == id);
+        }
+
+        public dynamic GetDados(string? collectionName)
+        {
+            return _service.GetAll<BsonDocument>(_collectionName);
         }
     }
 }

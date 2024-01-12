@@ -1,5 +1,6 @@
 ﻿using DatloTest.Domain.Models;
 using DatloTest.Infrastructure.Repository;
+using DatloTest.Infrastructure.Services;
 using DatloTest.Service.Interfaces;
 using System.Data;
 
@@ -18,7 +19,7 @@ namespace DatloTest.Service.Services
             if (!string.IsNullOrEmpty(model?.CollectionName))
             {
                 // Delete collection by name
-                _conjuntoRepository.DeletarDados(model.CollectionName);
+                _conjuntoRepository.DeleteDados(model.CollectionName);
             }
 
             // Gera novo guid para nomear a nova collection
@@ -49,11 +50,6 @@ namespace DatloTest.Service.Services
             return conjunto;
         }
 
-        public dynamic ConsultarConjunto(Guid idConjunto)
-        {
-            return _conjuntoRepository.GetById(idConjunto);
-        }
-
         public IList<ConjuntoModel> ListaConjuntos(string? nomeConjunto)
         {
             IQueryable<ConjuntoModel> conjuntos;
@@ -64,6 +60,17 @@ namespace DatloTest.Service.Services
                 conjuntos = _conjuntoRepository.GetAll();
 
             return conjuntos.ToList();
+        }
+
+        public dynamic ConsultarConjunto(Guid idConjunto, DataTable? dataTable)
+        {
+            var model = _conjuntoRepository.GetById(idConjunto);
+            if (model == null)
+                return null;
+
+            var filtros = DataTableService.ConvertDataTableToListDictionary(dataTable);
+
+            return _conjuntoRepository.GetDados(model.CollectionName);
         }
     }
 }

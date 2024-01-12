@@ -33,7 +33,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapGet("ListaConjuntos", ([FromServices] IConjuntoService conjuntoService,
-    string nomeConjunto) =>
+    string? nomeConjunto) =>
 {
     return conjuntoService.ListaConjuntos(nomeConjunto);
 })
@@ -65,7 +65,7 @@ app.MapGet("ConsultarConjunto", ([FromServices] IConjuntoService conjuntoService
 
 app.MapPost("/CarregarConjunto", ([FromServices] IConjuntoService conjuntoService,
     [FromServices] IExcelReaderService excelReaderService,
-    string descricao,
+    string nome,
     IFormFile arquivo) =>
 {
     DataTable? dataTable;
@@ -81,7 +81,7 @@ app.MapPost("/CarregarConjunto", ([FromServices] IConjuntoService conjuntoServic
         dataTable = excelReaderService.ReadExcelFile(tempfile);
 
         if (dataTable != null)
-           return conjuntoService.CarregarConjunto(descricao, dataTable);
+           return conjuntoService.CarregarConjunto(nome, dataTable);
     }
 
     return null;
@@ -92,8 +92,10 @@ app.MapPost("/CarregarConjunto", ([FromServices] IConjuntoService conjuntoServic
 app.MapPost("/AtualizarConjunto", ([FromServices] IConjuntoService conjuntoService,
     [FromServices] IExcelReaderService excelReaderService,
     Guid idConjunto,
+    string? nome,
     IFormFile arquivo) =>
 {
+    DataTable? dataTable;
     if (!string.IsNullOrEmpty(arquivo?.Name))
     {
         string tempfile = excelReaderService.CreateTempFilePath(arquivo.FileName);
@@ -103,10 +105,13 @@ app.MapPost("/AtualizarConjunto", ([FromServices] IConjuntoService conjuntoServi
         }
 
         // Format CSV or XLSX to DataTable
-        DataTable dataTable = excelReaderService.ReadExcelFile(tempfile);
+        dataTable = excelReaderService.ReadExcelFile(tempfile);
+
+        if (dataTable != null)
+            return conjuntoService.AtualizarConjunto(idConjunto, nome, dataTable);
     }
 
-
+    return null;
 })
     .WithName("AtualizarConjunto")
     .DisableAntiforgery();

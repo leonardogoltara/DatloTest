@@ -10,19 +10,35 @@ namespace DatloTest.Infrastructure.MongoDBService.Repositories
         private readonly string _collectionName = "conjuntos";
         private readonly IMongoDBService _service = mongoDBService;
 
-        public IList<ConjuntoModel> GetAll()
+        public IQueryable<ConjuntoModel> GetAll()
         {
-            throw new NotImplementedException();
+            return _service.GetAll<ConjuntoModel>(_collectionName);
         }
 
-        public void Save(ConjuntoModel conjunto)
+        public void InsertOne(ConjuntoModel conjunto)
         {
             _service.InsertOne(conjunto, _collectionName);
         }
 
-        public void SaveDados(string collectionName, DataTable dataTable)
+        public void UpdateOne(ConjuntoModel conjunto)
+        {
+            _service.UpdateOne(conjunto, conjunto.Id, _collectionName);
+        }
+
+        public void SaveDados(string? collectionName, DataTable dataTable)
         {
             _service.SaveDataTableToCollection(dataTable, collectionName);
+        }
+
+        public void DeletarDados(string? collectionName)
+        {
+            _service.DeleteCollection(collectionName);
+        }
+
+        public ConjuntoModel GetById(Guid id)
+        {
+            return _service?.GetAll<ConjuntoModel>(_collectionName)?
+                .FirstOrDefault(o => o.Id == id);
         }
     }
 }

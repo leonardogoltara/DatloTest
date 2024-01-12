@@ -10,7 +10,7 @@ namespace DatloTest.Infrastructure.MongoDBService.Services
         private readonly string _connString = "mongodb://localhost:27017";
         private readonly string _databaseName = "datlotestdb";
 
-        public bool InsertOne<T>(T entity, string collectionName)
+        public bool InsertOne<T>(T entity, string? collectionName)
         {
             var client = new MongoClient(_connString);
             var database = client.GetDatabase(_databaseName);
@@ -19,6 +19,19 @@ namespace DatloTest.Infrastructure.MongoDBService.Services
             collection.InsertOne(entity);
 
             return true;
+        }
+
+        public bool UpdateOne<T>(T entity, Guid key, string? collectionName)
+        {
+            var client = new MongoClient(_connString);
+            var database = client.GetDatabase(_databaseName);
+            var collection = database.GetCollection<T>(collectionName);
+
+            var filter = Builders<T>.Filter.Eq("Id", key);
+
+            var result = collection.ReplaceOne(filter, entity, new UpdateOptions() { IsUpsert = true });
+
+            return result.ModifiedCount > 0; ;
         }
 
         public async Task SaveDataTableToCollectionOld(DataTable dt, string collectionName)
@@ -37,7 +50,7 @@ namespace DatloTest.Infrastructure.MongoDBService.Services
             await collection.InsertManyAsync(batch.AsEnumerable());
         }
 
-        public async Task SaveDataTableToCollection(DataTable dt, string collectionName)
+        public async Task SaveDataTableToCollection(DataTable dt, string? collectionName)
         {
             var client = new MongoClient(_connString);
             var database = client.GetDatabase(_databaseName);
@@ -60,13 +73,23 @@ namespace DatloTest.Infrastructure.MongoDBService.Services
             }
         }
 
-        public IQueryable<T> GetAll<T>(string collectionName)
+        public IQueryable<T> GetAll<T>(string? collectionName)
         {
             var client = new MongoClient(_connString);
             var database = client.GetDatabase(_databaseName);
             var collection = database.GetCollection<T>(collectionName);
 
             return collection.AsQueryable();
+        }
+
+        public bool DeleteCollection(string? collectionName)
+        {
+            var client = new MongoClient(_connString);
+            var database = client.GetDatabase(_databaseName);
+
+            database.DropCollection(collectionName);
+
+            return true;
         }
     }
 }

@@ -9,9 +9,30 @@ namespace DatloTest.Service.Services
     {
         private readonly IConjuntoRepository _conjuntoRepository = conjuntoRepository;
 
-        public ConjuntoModel AtualizarConjunto(Guid idConjunto, DataTable dataTable)
+        public ConjuntoModel AtualizarConjunto(Guid idConjunto, string? nome, DataTable dataTable)
         {
-            throw new NotImplementedException();
+            ConjuntoModel model = _conjuntoRepository.GetById(idConjunto);
+            if (model == null)
+                return null;
+
+            if (!string.IsNullOrEmpty(model?.CollectionName))
+            {
+                // Delete collection by name
+                _conjuntoRepository.DeletarDados(model.CollectionName);
+            }
+
+            // Gera novo guid para nomear a nova collection
+            model.CollectionName = Guid.NewGuid().ToString();
+            if (!string.IsNullOrEmpty(nome))
+                model.Name = nome;
+
+            // Atualiza o registro Conjunto
+            _conjuntoRepository.UpdateOne(model);
+
+            // Salva nova Collection
+            _conjuntoRepository.SaveDados(model.CollectionName, dataTable);
+
+            return model;
         }
 
         public ConjuntoModel CarregarConjunto(string name, DataTable dataTable)
@@ -22,7 +43,7 @@ namespace DatloTest.Service.Services
             };
             conjunto.CollectionName = conjunto.Id.ToString();
 
-            _conjuntoRepository.Save(conjunto);
+            _conjuntoRepository.InsertOne(conjunto);
             _conjuntoRepository.SaveDados(conjunto.CollectionName, dataTable);
 
             return conjunto;
@@ -30,12 +51,19 @@ namespace DatloTest.Service.Services
 
         public dynamic ConsultarConjunto(Guid idConjunto)
         {
-            throw new NotImplementedException();
+            return _conjuntoRepository.GetById(idConjunto);
         }
 
-        public IList<ConjuntoModel> ListaConjuntos(string nomeConjunto)
+        public IList<ConjuntoModel> ListaConjuntos(string? nomeConjunto)
         {
-            throw new NotImplementedException();
+            IQueryable<ConjuntoModel> conjuntos;
+
+            if (!string.IsNullOrEmpty(nomeConjunto))
+                conjuntos = _conjuntoRepository.GetAll().Where(o => o.Name.Contains(nomeConjunto, StringComparison.CurrentCultureIgnoreCase));
+            else
+                conjuntos = _conjuntoRepository.GetAll();
+
+            return conjuntos.ToList();
         }
     }
 }

@@ -5,9 +5,9 @@ namespace DatloTest.Service.Interfaces
 {
     public interface IConjuntoService
     {
-        ConjuntoModel AtualizarConjunto(Guid idConjunto, DataTable dataTable);
+        ConjuntoModel AtualizarConjunto(Guid idConjunto, string? nome, DataTable dataTable);
         ConjuntoModel CarregarConjunto(string name, DataTable dataTable);
         dynamic ConsultarConjunto(Guid idConjunto);
-        IList<ConjuntoModel> ListaConjuntos(string nomeConjunto);
+        IList<ConjuntoModel> ListaConjuntos(string? nomeConjunto);
     }
 }

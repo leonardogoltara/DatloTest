@@ -14,8 +14,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DatloTest.Domain\DatloTest.Domain.csproj" />
-    <ProjectReference Include="..\DatloTest.Infrastructure.Dapper\DatloTest.Infrastructure.Dapper.csproj" />
     <ProjectReference Include="..\DatloTest.Infrastructure.Excel\DatloTest.Infrastructure.Excel.csproj" />
+    <ProjectReference Include="..\DatloTest.Infrastructure.MongoDBService\DatloTest.Infrastructure.MongoDBService.csproj" />
     <ProjectReference Include="..\DatloTest.Infrastructure\DatloTest.Infrastructure.csproj" />
     <ProjectReference Include="..\DatloTest.Service\DatloTest.Service.csproj" />
   </ItemGroup>

@@ -13,6 +13,7 @@ namespace DatloTest.Infrastructure.Excel
             // according to the Polyform Noncommercial license:
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         }
+
         public string CreateTempFilePath(string fileName)
         {
             var filename = $@"{DateTime.Now.Ticks}_{fileName}";
@@ -24,7 +25,8 @@ namespace DatloTest.Infrastructure.Excel
 
             return Path.Combine(directoryPath, filename);
         }
-        public DataSet ReadExcelFile(string filePath)
+
+        public DataTable ReadExcelFile(string filePath)
         {
             using (var stream = File.OpenRead(filePath))
             {
@@ -36,7 +38,7 @@ namespace DatloTest.Infrastructure.Excel
                         AutodetectSeparators = [',']
                     });
 
-                    DataSet result = excelReader.AsDataSet();
+                    DataTable result = excelReader.AsDataSet().Tables[0];
 
                     return result;
                 }
@@ -58,7 +60,7 @@ namespace DatloTest.Infrastructure.Excel
                     }
 
                     IExcelDataReader excelReader = ExcelReaderFactory.CreateReader(stream);
-                    DataSet result = excelReader.AsDataSet();
+                    DataTable result = excelReader.AsDataSet().Tables[0];
 
                     return result;
                 }

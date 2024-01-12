@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DatloTest.Domain\DatloTest.Domain.csproj" />
+    <ProjectReference Include="..\DatloTest.Infrastructure\DatloTest.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,10 @@
-using DatloTest.Infrastructure.Excel;
+using DatloTest.Infrastructure.MongoDBService.Repositories;
+using DatloTest.Infrastructure.MongoDBService.Services;
+using DatloTest.Infrastructure.Repository;
 using DatloTest.Infrastructure.Services;
+using DatloTest.Infrastructure.Excel;
+using DatloTest.Service.Interfaces;
+using DatloTest.Service.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 
@@ -10,6 +15,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IExcelReaderService, ExcelReaderService>();
+builder.Services.AddScoped<IConjuntoService, ConjuntoService>();
+builder.Services.AddScoped<IMongoDBService, MongoDBService>();
+builder.Services.AddScoped<IConjuntoRepository, ConjuntoRepository>();
+
 System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
 var app = builder.Build();
@@ -23,58 +32,79 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("ListaConjuntos", (string nomeConjunto) =>
+app.MapGet("ListaConjuntos", ([FromServices] IConjuntoService conjuntoService,
+    string nomeConjunto) =>
 {
-    // Id e Nome
-    return "Listar Conjuntos";
+    return conjuntoService.ListaConjuntos(nomeConjunto);
 })
     .WithName("ListaConjuntos")
     .WithOpenApi();
 
-app.MapGet("ConsultarConjunto", ([FromServices] IExcelReaderService excelReaderService,
+app.MapGet("ConsultarConjunto", ([FromServices] IConjuntoService conjuntoService,
+    [FromServices] IExcelReaderService excelReaderService,
     Guid idConjunto,
     IFormFile arquivoFilter) =>
 {
-    // Id e Nome
-    return "Consultar Conjunto";
+    DataTable dataTable;
+    if (!string.IsNullOrEmpty(arquivoFilter?.Name))
+    {
+        string tempfile = excelReaderService.CreateTempFilePath(arquivoFilter.FileName);
+        using (var stream = File.OpenWrite(tempfile))
+        {
+            arquivoFilter.CopyToAsync(stream).Wait();
+        }
+
+        // Format CSV or XLSX to DataTable
+        dataTable = excelReaderService.ReadExcelFile(tempfile);
+    }
+
+    return conjuntoService.ConsultarConjunto(idConjunto);
 })
     .WithName("ConsultarConjunto")
     .WithOpenApi();
 
-app.MapPost("/CarregarConjunto", ([FromServices] IExcelReaderService excelReaderService,
+app.MapPost("/CarregarConjunto", ([FromServices] IConjuntoService conjuntoService,
+    [FromServices] IExcelReaderService excelReaderService,
     string descricao,
     IFormFile arquivo) =>
 {
-    // Save file
-    string tempfile = excelReaderService.CreateTempFilePath(arquivo.FileName);
-    using (var stream = File.OpenWrite(tempfile))
+    DataTable? dataTable;
+    if (!string.IsNullOrEmpty(arquivo?.Name))
     {
-        arquivo.CopyToAsync(stream).Wait();
+        string tempfile = excelReaderService.CreateTempFilePath(arquivo.FileName);
+        using (var stream = File.OpenWrite(tempfile))
+        {
+            arquivo.CopyToAsync(stream).Wait();
+        }
+
+        // Format CSV or XLSX to DataTable
+        dataTable = excelReaderService.ReadExcelFile(tempfile);
+
+        if (dataTable != null)
+           return conjuntoService.CarregarConjunto(descricao, dataTable);
     }
 
-    // Format CSV or XLSX to DataSet
-    DataSet dataSet = excelReaderService.ReadExcelFile(tempfile);
-
-
-
+    return null;
 })
     .WithName("CarregarConjunto")
     .DisableAntiforgery();
 
-app.MapPost("/AtualizarConjunto", ([FromServices] IExcelReaderService excelReaderService,
+app.MapPost("/AtualizarConjunto", ([FromServices] IConjuntoService conjuntoService,
+    [FromServices] IExcelReaderService excelReaderService,
     Guid idConjunto,
     IFormFile arquivo) =>
 {
-    // Save file
-    string tempfile = excelReaderService.CreateTempFilePath(arquivo.FileName);
-    using (var stream = File.OpenWrite(tempfile))
+    if (!string.IsNullOrEmpty(arquivo?.Name))
     {
-        arquivo.CopyToAsync(stream).Wait();
+        string tempfile = excelReaderService.CreateTempFilePath(arquivo.FileName);
+        using (var stream = File.OpenWrite(tempfile))
+        {
+            arquivo.CopyToAsync(stream).Wait();
+        }
+
+        // Format CSV or XLSX to DataTable
+        DataTable dataTable = excelReaderService.ReadExcelFile(tempfile);
     }
-
-    // Format CSV or XLSX to DataSet
-    DataSet dataSet = excelReaderService.ReadExcelFile(tempfile);
-
 
 
 })

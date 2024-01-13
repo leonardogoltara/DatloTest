@@ -104,7 +104,7 @@ app.MapPost("/AtualizarConjunto", ([FromServices] IConjuntoService conjuntoServi
 app.MapPost("ConsultarConjunto", ([FromServices] IConjuntoService conjuntoService,
     [FromServices] IExcelReaderService excelReaderService,
     Guid idConjunto,
-    IFormFile arquivoFilter) =>
+    IFormFile? arquivoFilter) =>
 {
     DataTable dataTable = null;
     if (!string.IsNullOrEmpty(arquivoFilter?.Name))
@@ -119,7 +119,9 @@ app.MapPost("ConsultarConjunto", ([FromServices] IConjuntoService conjuntoServic
         dataTable = excelReaderService.ReadExcelFile(tempfile);
     }
 
-    return conjuntoService.ConsultarConjunto(idConjunto, dataTable);
+    var result = conjuntoService.ConsultarConjunto(idConjunto, dataTable);
+
+    return result;
 })
     .WithName("ConsultarConjunto")
     .WithTags("Relatórios")

@@ -73,11 +73,41 @@ namespace DatloTest.Infrastructure.MongoDBService.Services
             }
         }
 
-        public IQueryable<T> GetAll<T>(string? collectionName)
+        public T GetById<T>(string? collectionName, Guid id)
         {
             var client = new MongoClient(_connString);
             var database = client.GetDatabase(_databaseName);
             var collection = database.GetCollection<T>(collectionName);
+
+            var filter = Builders<T>.Filter.Eq("Id", id);
+
+            var result = collection.Find(filter).ToList();
+
+            return result.FirstOrDefault();
+        }
+
+        public IQueryable<T> GetAll<T>(string? collectionName, Dictionary<string, List<string>> filters)
+        {
+            var client = new MongoClient(_connString);
+            var database = client.GetDatabase(_databaseName);
+            var collection = database.GetCollection<T>(collectionName);
+
+            if (filters != null && filters.Any())
+            {
+
+                //var filter = Builders<T>.Filter.Eq("Parameters.Value", 11111);
+                var filter = Builders<T>.Filter.AnyIn(filters.First().Key, filters.First().Value.ToArray());
+                //string firstKey = filters.First().Key;
+                //filters.Remove(firstKey);
+
+                //foreach (var filterCol in filters)
+                //{
+                //    filter = filter.AnyIn(filterCol.Key, filterCol.Value.ToArray());
+                //}
+
+                var result = collection.Find(filter).ToList();
+                return result.AsQueryable();
+            }
 
             return collection.AsQueryable();
         }

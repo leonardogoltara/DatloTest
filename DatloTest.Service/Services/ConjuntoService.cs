@@ -62,15 +62,34 @@ namespace DatloTest.Service.Services
             return conjuntos.ToList();
         }
 
-        public dynamic ConsultarConjunto(Guid idConjunto, DataTable? dataTable)
+        public IEnumerable<dynamic> ConsultarConjunto(Guid idConjunto, DataTable? dataTable)
         {
             var model = _conjuntoRepository.GetById(idConjunto);
             if (model == null)
                 return null;
 
-            var filtros = DataTableService.ConvertDataTableToListDictionary(dataTable);
+            var filtroConjuntos = new Dictionary<string, List<string>>();
+            if (dataTable != null)
+            {
+                var linhaFiltros = DataTableService.ConvertDataTableToListDictionary(dataTable);
+                foreach (var linha in linhaFiltros)
+                {
+                    foreach (var col in linha)
+                    {
+                        if (filtroConjuntos.Any(o => o.Key == col.Key))
+                        {
+                            var filtroExistente = filtroConjuntos.FirstOrDefault(o => o.Key == col.Key);
+                            filtroExistente.Value.Add(col.Value);
+                        }
+                        else
+                        {
+                            filtroConjuntos.Add(col.Key, new List<string>() { col.Value });
+                        }
+                    }
+                }
+            }
 
-            return _conjuntoRepository.GetDados(model.CollectionName);
+            return _conjuntoRepository.GetDados(model.CollectionName, filtroConjuntos);
         }
     }
 }

@@ -2,6 +2,7 @@
 using DatloTest.Infrastructure.Repository;
 using DatloTest.Infrastructure.Services;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Operations;
 using System.Data;
 
 namespace DatloTest.Infrastructure.MongoDBService.Repositories
@@ -13,7 +14,7 @@ namespace DatloTest.Infrastructure.MongoDBService.Repositories
 
         public IQueryable<ConjuntoModel> GetAll()
         {
-            return _service.GetAll<ConjuntoModel>(_collectionName);
+            return _service.GetAll<ConjuntoModel>(_collectionName, null);
         }
 
         public void InsertOne(ConjuntoModel conjunto)
@@ -38,13 +39,16 @@ namespace DatloTest.Infrastructure.MongoDBService.Repositories
 
         public ConjuntoModel GetById(Guid id)
         {
-            return _service?.GetAll<ConjuntoModel>(_collectionName)?
-                .FirstOrDefault(o => o.Id == id);
+            return _service.GetById<ConjuntoModel>(_collectionName, id);
         }
 
-        public dynamic GetDados(string? collectionName)
+        public IEnumerable<dynamic> GetDados(string? collectionName, Dictionary<string, List<string>> filter)
         {
-            return _service.GetAll<BsonDocument>(_collectionName);
+            var query = _service.GetAll<BsonDocument>(collectionName, filter)
+                .ToList()
+                .Select(o => o.ToDynamic(true));
+
+            return query;
         }
     }
 }

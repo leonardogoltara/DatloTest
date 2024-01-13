@@ -7,7 +7,7 @@ namespace DatloTest.Service.Interfaces
     {
         ConjuntoModel AtualizarConjunto(Guid idConjunto, string? nome, DataTable dataTable);
         ConjuntoModel CarregarConjunto(string name, DataTable dataTable);
-        dynamic ConsultarConjunto(Guid idConjunto, DataTable? dataTable);
+        IEnumerable<dynamic> ConsultarConjunto(Guid idConjunto, DataTable? dataTable);
         IList<ConjuntoModel> ListaConjuntos(string? nomeConjunto);
     }
 }

@@ -9,7 +9,7 @@ namespace DatloTest.Infrastructure.Repository
         public void InsertOne(ConjuntoModel conjunto);
         public void SaveDados(string? collectionName, DataTable dataTable);
         public void DeleteDados(string? collectionName);
-        public dynamic GetDados(string? collectionName);
+        public IEnumerable<dynamic> GetDados(string? collectionName, Dictionary<string, List<string>> filter);
         public IQueryable<ConjuntoModel> GetAll();
         public ConjuntoModel GetById(Guid id);
     }

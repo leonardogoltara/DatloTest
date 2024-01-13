@@ -16,8 +16,9 @@ namespace DatloTest.Infrastructure.MongoDBService
             /// Trata o json
             var json = bson.ToJson(new MongoDB.Bson.IO.JsonWriterSettings { OutputMode = JsonOutputMode.Strict });
 
-            /// Remove a prop Id do banco
             var o = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+
+            /// Remove a prop Id do banco
             if (removeId)
             {
                 o.Property("_id").Remove();
@@ -25,12 +26,12 @@ namespace DatloTest.Infrastructure.MongoDBService
 
             dynamic e = Newtonsoft.Json.JsonConvert.DeserializeObject<ExpandoObject>(o.ToString());
 
+            /// Trata para o Id ser um string simples.
             if (!removeId)
             {
                 BsonValue id;
                 if (bson.TryGetValue("_id", out id))
                 {
-                    // Lets set _id again so that its possible to save document.
                     e._id = id.ToString();
                 }
             }
